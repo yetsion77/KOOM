@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Timer, Trophy, Lightbulb, ArrowLeft } from "lucide-react";
+import { Timer, Trophy, Lightbulb } from "lucide-react";
 import { motion, AnimatePresence } from 'framer-motion';
 import { questions } from '@/data/questions';
 import type { Feedback, FeedbackMessages, Question } from '@/types/game';
@@ -14,7 +14,7 @@ const LocationGame = () => {
   const [gameStarted, setGameStarted] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(120);
+  const [questionTimer, setQuestionTimer] = useState(15);
   const [letters, setLetters] = useState<string[]>([]);
   const [showHint, setShowHint] = useState(false);
   const [gameOver, setGameOver] = useState(false);
@@ -22,6 +22,7 @@ const LocationGame = () => {
   const [isWrong, setIsWrong] = useState(false);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [shuffledQuestions, setShuffledQuestions] = useState<Question[]>([]);
+  const [mistakes, setMistakes] = useState(0);
   
   const inputRefs = useRef<HTMLInputElement[]>([]);
 
@@ -35,11 +36,36 @@ const LocationGame = () => {
       className: 'text-red-600'
     }
   };
-const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-  };
+  // Timer and game initialization effects
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (gameStarted && questionTimer > 0) {
+      timer = setInterval(() => {
+        setQuestionTimer((prev) => {
+          if (prev <= 1) {
+            handleTimeUp();
+            return 15; // איפוס הטיימר
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [gameStarted, questionTimer]);
+
+  useEffect(() => {
+    if (gameStarted) {
+      const currentQ = shuffledQuestions[currentQuestion];
+      setLetters(new Array(currentQ.answer.length).fill(''));
+      inputRefs.current = new Array(currentQ.answer.length)
+        .fill(null)
+        .map((_, i) => inputRefs.current[i] || null);
+      
+      setTimeout(() => {
+        inputRefs.current[0]?.focus();
+      }, 100);
+    }
+  }, [currentQuestion, gameStarted, shuffledQuestions]);
 
   const shuffleQuestions = () => {
     const shuffled = [...questions].sort(() => Math.random() - 0.5);
@@ -53,6 +79,36 @@ const formatTime = (seconds: number) => {
     setTimeout(() => setFeedback(null), 1500);
   };
 
+  const handleTimeUp = () => {
+    setMistakes(prev => prev + 1);
+    const currentQ = shuffledQuestions[currentQuestion];
+    setFeedback({
+      message: `נגמר הזמן! התשובה הנכונה: ${currentQ.displayAnswer}`,
+      className: 'text-blue-600'
+    });
+    
+    if (mistakes + 1 >= 3) {
+      setTimeout(() => {
+        setGameOver(true);
+        setGameStarted(false);
+      }, 1500);
+    } else {
+      setTimeout(() => {
+        if (currentQuestion < shuffledQuestions.length - 1) {
+          setCurrentQuestion(prev => prev + 1);
+          setLetters([]);
+          setShowHint(false);
+          setIsCorrect(false);
+          setIsWrong(false);
+          setFeedback(null);
+          setQuestionTimer(15);
+        } else {
+          setGameOver(true);
+          setGameStarted(false);
+        }
+      }, 1500);
+    }
+  };
   const handleInput = (index: number, value: string) => {
     if (value.length > 1) return;
     
@@ -60,11 +116,13 @@ const formatTime = (seconds: number) => {
     newLetters[index] = value;
     setLetters(newLetters);
 
+    // מעבר לתיבה הבאה
     if (value && index < letters.length - 1) {
       inputRefs.current[index + 1]?.focus();
     }
 
-    if (newLetters.every(letter => letter)) {
+    // בדיקת התשובה רק כשכל התיבות מלאות והגענו לתו האחרון
+    if (index === letters.length - 1 && value && newLetters.every(letter => letter)) {
       const userAnswer = newLetters.join('');
       const cleanUserAnswer = userAnswer.replace(/\s/g, '');
       const cleanExpectedAnswer = shuffledQuestions[currentQuestion].answer.replace(/\s/g, '');
@@ -73,42 +131,42 @@ const formatTime = (seconds: number) => {
         setIsWrong(false);
         setIsCorrect(true);
         showFeedback('correct');
-        handleCorrectAnswer();
+        setScore(prev => prev + (showHint ? 5 : 10));
+        
+        setTimeout(() => {
+          if (currentQuestion < shuffledQuestions.length - 1) {
+            setCurrentQuestion(prev => prev + 1);
+            setLetters([]);
+            setShowHint(false);
+            setIsCorrect(false);
+            setQuestionTimer(15);
+          } else {
+            setGameOver(true);
+            setGameStarted(false);
+          }
+        }, 1500);
       } else {
+        setMistakes(prev => prev + 1);
         setIsWrong(true);
         showFeedback('wrong');
-        setTimeout(() => {
-          setIsWrong(false);
-          setLetters(new Array(shuffledQuestions[currentQuestion].answer.length).fill(''));
-          inputRefs.current[0]?.focus();
-        }, 1500);
+
+        if (mistakes + 1 >= 3) {
+          setTimeout(() => {
+            setGameOver(true);
+            setGameStarted(false);
+          }, 1500);
+        } else {
+          setTimeout(() => {
+            setIsWrong(false);
+            setLetters(new Array(shuffledQuestions[currentQuestion].answer.length).fill(''));
+            inputRefs.current[0]?.focus();
+          }, 1500);
+        }
       }
     }
   };
 
-  const handleVirtualKeyPress = (key: string) => {
-    // מצא את התיבה הריקה הראשונה
-    const targetIndex = letters.findIndex(letter => !letter);
-    if (targetIndex === -1) return; // אם כל התיבות מלאות, לא עושים כלום
-    
-    handleInput(targetIndex, key);
-  };
-
-  const handleVirtualBackspace = () => {
-    // מצא את התיבה המלאה האחרונה
-    const targetIndex = letters.map(letter => !!letter).lastIndexOf(true);
-    if (targetIndex === -1) return; // אם הכל ריק, לא עושים כלום
-    
-    // מחק את האות
-    const newLetters = [...letters];
-    newLetters[targetIndex] = '';
-    setLetters(newLetters);
-    
-    // התמקד בתיבה שמחקנו ממנה
-    inputRefs.current[targetIndex]?.focus();
-  };
-
-const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Backspace') {
       const newLetters = [...letters];
       if (!letters[index] && index > 0) {
@@ -119,20 +177,33 @@ const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) 
       }
       setLetters(newLetters);
     }
-    else if (e.key === 'ArrowLeft' && index < letters.length - 1) {
-      inputRefs.current[index + 1]?.focus();
-    }
-    else if (e.key === 'ArrowRight' && index > 0) {
-      inputRefs.current[index - 1]?.focus();
-    }
+  };
+
+  const handleVirtualKeyPress = (key: string) => {
+    let targetIndex = letters.findIndex(letter => !letter);
+    if (targetIndex === -1) return;
+    
+    handleInput(targetIndex, key);
+  };
+
+  const handleVirtualBackspace = () => {
+    let targetIndex = letters.map(letter => !!letter).lastIndexOf(true);
+    if (targetIndex === -1) return;
+    
+    const newLetters = [...letters];
+    newLetters[targetIndex] = '';
+    setLetters(newLetters);
+    
+    inputRefs.current[targetIndex]?.focus();
   };
 
   const startGame = () => {
     shuffleQuestions();
     setGameStarted(true);
     setGameOver(false);
-    setTimeLeft(120);
+    setQuestionTimer(15);
     setScore(0);
+    setMistakes(0);
     setCurrentQuestion(0);
     setLetters([]);
     setShowHint(false);
@@ -140,135 +211,59 @@ const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) 
     setIsWrong(false);
     setFeedback(null);
   };
-
-  const handleSkip = () => {
-    setScore(prev => Math.max(0, prev - 3));
-    if (currentQuestion < shuffledQuestions.length - 1) {
-      setCurrentQuestion(prev => prev + 1);
-      setLetters([]);
-      setShowHint(false);
-      setIsCorrect(false);
-      setIsWrong(false);
-      setFeedback(null);
-    } else {
-      setGameOver(true);
-      setGameStarted(false);
-    }
-  };
-
-  const handleCorrectAnswer = async () => {
-    setIsCorrect(true);
-    const points = showHint ? 5 : 10;
-    setScore(prev => prev + points);
+  const renderInputBoxes = () => {
+    const currentQ = shuffledQuestions[currentQuestion];
+    let letterIndex = 0;
     
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    if (currentQuestion < shuffledQuestions.length - 1) {
-      setCurrentQuestion(prev => prev + 1);
-      setLetters([]);
-      setShowHint(false);
-      setIsCorrect(false);
-    } else {
-      setGameOver(true);
-      setGameStarted(false);
-    }
-  };
-
-  const showHintLetter = () => {
-    setShowHint(true);
-    const firstLetter = shuffledQuestions[currentQuestion].answer[0];
-    const newLetters = [...letters];
-    newLetters[0] = firstLetter;
-    setLetters(newLetters);
-    if (letters.length > 1) {
-      inputRefs.current[1]?.focus();
-    }
-  };
-
-  // Effects
-useEffect(() => {
-    if (gameStarted) {
-      const currentQ = shuffledQuestions[currentQuestion];
-      setLetters(new Array(currentQ.answer.length).fill(''));
-      inputRefs.current = new Array(currentQ.answer.length)
-        .fill(null)
-        .map((_, i) => inputRefs.current[i] || null);
-      
-      setTimeout(() => {
-        inputRefs.current[0]?.focus();
-      }, 100);
-    }
-  }, [currentQuestion, gameStarted, shuffledQuestions]); // הוספנו shuffledQuestions
-
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (gameStarted && timeLeft > 0) {
-      timer = setInterval(() => {
-        setTimeLeft((prev) => {
-          if (prev <= 1) {
-            setGameOver(true);
-            setGameStarted(false);
-            clearInterval(timer);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-    return () => clearInterval(timer);
-  }, [gameStarted, timeLeft]);
-const renderInputBoxes = () => {
-  const currentQ = shuffledQuestions[currentQuestion];
-  let letterIndex = 0;
-  
-  return (
-    <div className="flex flex-row justify-center gap-4 md:gap-8 mb-8">
-      {currentQ.wordLengths.map((length, wordIndex) => (
-        <div key={wordIndex} className="flex flex-row gap-1 md:gap-2">
-          {Array.from({ length }, () => {
-            const currentIndex = letterIndex++;
-            return (
-              <motion.div
-                key={currentIndex}
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: currentIndex * 0.05 }}
-              >
-                <input
+    return (
+      <div className="flex flex-row justify-center gap-4 md:gap-8 mb-8">
+        {currentQ.wordLengths.map((length, wordIndex) => (
+          <div key={wordIndex} className="flex flex-row gap-1 md:gap-2">
+            {Array.from({ length }, () => {
+              const currentIndex = letterIndex++;
+              return (
+                <motion.div
                   key={currentIndex}
-                  ref={(el) => {
-                    if (el) {
-                      inputRefs.current[currentIndex] = el;
-                    }
-                  }}
-                  type="text"
-                  maxLength={1}
-                  className={`w-8 h-8 md:w-12 md:h-12 border-2 rounded text-center 
-                    text-base md:text-lg font-bold
-                    ${isCorrect ? 'border-green-500 bg-green-100 animate-bounce' : 
-                      isWrong ? 'border-red-500 bg-red-100 animate-shake' : 
-                      'border-blue-300'}
-                    focus:border-blue-500 focus:outline-none transition-colors duration-300`}
-                  value={letters[currentIndex] || ''}
-                  onChange={(e) => handleInput(currentIndex, e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(currentIndex, e)}
-                  dir="rtl"
-                />
-              </motion.div>
-            );
-          })}
-        </div>
-      ))}
-    </div>
-  );
-};
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: currentIndex * 0.05 }}
+                >
+                  <input
+                    key={currentIndex}
+                    ref={(el) => {
+                      if (el) {
+                        inputRefs.current[currentIndex] = el;
+                      }
+                    }}
+                    type="text"
+                    maxLength={1}
+                    className={`w-8 h-8 md:w-12 md:h-12 border-2 rounded text-center 
+                      text-base md:text-lg font-bold
+                      ${isCorrect ? 'border-green-500 bg-green-100 animate-bounce' : 
+                        isWrong ? 'border-red-500 bg-red-100 animate-shake' : 
+                        'border-blue-300'}
+                      focus:border-blue-500 focus:outline-none transition-colors duration-300`}
+                    value={letters[currentIndex] || ''}
+                    onChange={(e) => handleInput(currentIndex, e.target.value)}
+                    onKeyDown={(e) => handleKeyDown(currentIndex, e)}
+                    dir="rtl"
+                  />
+                </motion.div>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-2 md:p-8">
       <Card className="w-full max-w-3xl mx-auto bg-white/90 backdrop-blur shadow-xl mb-32 md:mb-0">
         <div className="p-4 md:p-8">
           <AnimatePresence mode="wait">
-{!gameStarted && !gameOver ? (
-              // Start Screen
+            {!gameStarted && !gameOver ? (
+              // מסך פתיחה
               <motion.div
                 key="start"
                 initial={{ opacity: 0, y: 20 }}
@@ -286,7 +281,7 @@ const renderInputBoxes = () => {
                 </Button>
               </motion.div>
             ) : gameOver ? (
-              // Game Over Screen
+              // מסך סיום
               <motion.div
                 key="end"
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -297,6 +292,7 @@ const renderInputBoxes = () => {
                 <Trophy className="w-16 h-16 mx-auto text-yellow-500 mb-4" />
                 <h2 className="text-2xl md:text-3xl font-bold text-blue-600">המשחק נגמר!</h2>
                 <p className="text-xl md:text-2xl">הניקוד שלך: {score}</p>
+                <p className="text-lg text-red-600">טעויות: {mistakes}/3</p>
                 <Button
                   onClick={startGame}
                   className="bg-blue-600 hover:bg-blue-700 text-base md:text-lg px-6 py-3 rounded-xl"
@@ -305,7 +301,7 @@ const renderInputBoxes = () => {
                 </Button>
               </motion.div>
             ) : (
-              // Game Screen
+              // מסך המשחק
               <motion.div
                 key="game"
                 initial={{ opacity: 0 }}
@@ -318,9 +314,16 @@ const renderInputBoxes = () => {
                     <Trophy className="w-5 h-5 text-yellow-600" />
                     <span className="text-base md:text-lg font-semibold">{score}</span>
                   </div>
-                  <div className="flex items-center gap-2 bg-blue-100 px-4 py-2 rounded-lg">
-                    <Timer className="w-5 h-5 text-blue-600" />
-                    <span className="text-base md:text-lg font-semibold">{formatTime(timeLeft)}</span>
+                  <div className="flex items-center gap-4">
+                    <div className="bg-red-100 px-4 py-2 rounded-lg">
+                      <span className="text-base md:text-lg font-semibold text-red-600">
+                        טעויות: {mistakes}/3
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 bg-blue-100 px-4 py-2 rounded-lg">
+                      <Timer className="w-5 h-5 text-blue-600" />
+                      <span className="text-base md:text-lg font-semibold">{questionTimer}</span>
+                    </div>
                   </div>
                 </div>
 
@@ -345,39 +348,24 @@ const renderInputBoxes = () => {
 
                 {renderInputBoxes()}
 
-                <div className="flex flex-col md:flex-row justify-center gap-3 md:gap-6 mt-4 md:mt-8">
+                <div className="flex justify-center gap-4">
                   <Button
-                    onClick={showHintLetter}
+                    onClick={() => {
+                      setShowHint(true);
+                      const firstLetter = shuffledQuestions[currentQuestion].answer[0];
+                      const newLetters = [...letters];
+                      newLetters[0] = firstLetter;
+                      setLetters(newLetters);
+                    }}
                     variant="outline"
                     disabled={showHint}
                     className="group relative px-4 md:px-6 py-2 md:py-3 rounded-lg border-2 border-yellow-400 
-                      hover:bg-yellow-50 transition-all duration-300 disabled:opacity-50 
-                      disabled:cursor-not-allowed w-full md:w-auto"
+                      hover:bg-yellow-50 transition-colors duration-300 disabled:opacity-50"
                   >
-                    <div className="flex items-center justify-center gap-2">
-                      <Lightbulb className="w-4 h-4 md:w-5 md:h-5 text-yellow-500 group-hover:text-yellow-600" />
-                      <span className="text-yellow-700 text-sm md:text-base">קבל רמז</span>
+                    <div className="flex items-center gap-2">
+                      <Lightbulb className="w-4 h-4 text-yellow-500 group-hover:text-yellow-600" />
+                      <span className="text-yellow-700">קבל רמז</span>
                     </div>
-                    <span className="absolute -top-2 -right-2 bg-yellow-100 text-yellow-700 
-                      text-xs px-2 py-1 rounded-full hidden md:block">
-                      -5 נקודות
-                    </span>
-                  </Button>
-                  
-                  <Button
-                    onClick={handleSkip}
-                    variant="outline"
-                    className="group relative px-4 md:px-6 py-2 md:py-3 rounded-lg border-2 border-red-400 
-                      hover:bg-red-50 transition-all duration-300 w-full md:w-auto"
-                  >
-                    <div className="flex items-center justify-center gap-2">
-                      <ArrowLeft className="w-4 h-4 md:w-5 md:h-5 text-red-500 group-hover:text-red-600" />
-                      <span className="text-red-700 text-sm md:text-base">דלג</span>
-                    </div>
-                    <span className="absolute -top-2 -right-2 bg-red-100 text-red-700 
-                      text-xs px-2 py-1 rounded-full hidden md:block">
-                      -3 נקודות
-                    </span>
                   </Button>
                 </div>
               </motion.div>
