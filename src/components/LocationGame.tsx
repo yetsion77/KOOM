@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Timer, Trophy, Lightbulb } from "lucide-react";
@@ -36,50 +36,19 @@ const LocationGame = () => {
       className: 'text-red-600'
     }
   };
-  // Timer and game initialization effects
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (gameStarted && questionTimer > 0) {
-      timer = setInterval(() => {
-        setQuestionTimer((prev) => {
-          if (prev <= 1) {
-            handleTimeUp();
-            return 15; // איפוס הטיימר
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-    return () => clearInterval(timer);
-  }, [gameStarted, questionTimer]);
-
-  useEffect(() => {
-    if (gameStarted) {
-      const currentQ = shuffledQuestions[currentQuestion];
-      setLetters(new Array(currentQ.answer.length).fill(''));
-      inputRefs.current = new Array(currentQ.answer.length)
-        .fill(null)
-        .map((_, i) => inputRefs.current[i] || null);
-      
-      setTimeout(() => {
-        inputRefs.current[0]?.focus();
-      }, 100);
-    }
-  }, [currentQuestion, gameStarted, shuffledQuestions]);
-
   const shuffleQuestions = () => {
     const shuffled = [...questions].sort(() => Math.random() - 0.5);
     setShuffledQuestions(shuffled);
   };
 
-  const showFeedback = (type: 'correct' | 'wrong') => {
+  const showFeedback = useCallback((type: 'correct' | 'wrong') => {
     const feedbackType = feedbackMessages[type];
     const message = feedbackType.messages[Math.floor(Math.random() * feedbackType.messages.length)];
     setFeedback({ message, className: feedbackType.className });
     setTimeout(() => setFeedback(null), 1500);
-  };
+  }, [feedbackMessages]);
 
-  const handleTimeUp = () => {
+  const handleTimeUp = useCallback(() => {
     setMistakes(prev => prev + 1);
     const currentQ = shuffledQuestions[currentQuestion];
     setFeedback({
@@ -108,8 +77,38 @@ const LocationGame = () => {
         }
       }, 1500);
     }
-  };
-  const handleInput = (index: number, value: string) => {
+  }, [currentQuestion, mistakes, shuffledQuestions]);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (gameStarted && questionTimer > 0) {
+      timer = setInterval(() => {
+        setQuestionTimer((prev) => {
+          if (prev <= 1) {
+            handleTimeUp();
+            return 15;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [gameStarted, questionTimer, handleTimeUp]);
+
+  useEffect(() => {
+    if (gameStarted) {
+      const currentQ = shuffledQuestions[currentQuestion];
+      setLetters(new Array(currentQ.answer.length).fill(''));
+      inputRefs.current = new Array(currentQ.answer.length)
+        .fill(null)
+        .map((_, i) => inputRefs.current[i] || null);
+      
+      setTimeout(() => {
+        inputRefs.current[0]?.focus();
+      }, 100);
+    }
+  }, [currentQuestion, gameStarted, shuffledQuestions]);
+  const handleInput = useCallback((index: number, value: string) => {
     if (value.length > 1) return;
     
     const newLetters = [...letters];
@@ -164,9 +163,9 @@ const LocationGame = () => {
         }
       }
     }
-  };
+  }, [letters, currentQuestion, shuffledQuestions, mistakes, showHint, showFeedback]);
 
-  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = useCallback((index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Backspace') {
       const newLetters = [...letters];
       if (!letters[index] && index > 0) {
@@ -177,17 +176,17 @@ const LocationGame = () => {
       }
       setLetters(newLetters);
     }
-  };
+  }, [letters]);
 
-  const handleVirtualKeyPress = (key: string) => {
-    let targetIndex = letters.findIndex(letter => !letter);
+  const handleVirtualKeyPress = useCallback((key: string) => {
+    const targetIndex = letters.findIndex(letter => !letter);
     if (targetIndex === -1) return;
     
     handleInput(targetIndex, key);
-  };
+  }, [letters, handleInput]);
 
-  const handleVirtualBackspace = () => {
-    let targetIndex = letters.map(letter => !!letter).lastIndexOf(true);
+  const handleVirtualBackspace = useCallback(() => {
+    const targetIndex = letters.map(letter => !!letter).lastIndexOf(true);
     if (targetIndex === -1) return;
     
     const newLetters = [...letters];
@@ -195,9 +194,9 @@ const LocationGame = () => {
     setLetters(newLetters);
     
     inputRefs.current[targetIndex]?.focus();
-  };
+  }, [letters]);
 
-  const startGame = () => {
+  const startGame = useCallback(() => {
     shuffleQuestions();
     setGameStarted(true);
     setGameOver(false);
@@ -210,8 +209,8 @@ const LocationGame = () => {
     setIsCorrect(false);
     setIsWrong(false);
     setFeedback(null);
-  };
-  const renderInputBoxes = () => {
+  }, []);
+  const renderInputBoxes = useCallback(() => {
     const currentQ = shuffledQuestions[currentQuestion];
     let letterIndex = 0;
     
@@ -255,8 +254,7 @@ const LocationGame = () => {
         ))}
       </div>
     );
-  };
-
+  }, [currentQuestion, shuffledQuestions, letters, isCorrect, isWrong, handleInput, handleKeyDown]);
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-2 md:p-8">
       <Card className="w-full max-w-3xl mx-auto bg-white/90 backdrop-blur shadow-xl mb-32 md:mb-0">
