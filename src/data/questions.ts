@@ -242,6 +242,30 @@ export const questions: Question[] = [
     displayAnswer: 'לבון',
     wordLengths: [4]
   },
+  {
+    question: 'קיבוץ בעמק יזרעאל הקרוי על שם טרומפלדור',
+    answer: 'תליוסף',
+    displayAnswer: 'תל יוסף',
+    wordLengths: [2, 4]
+},
+{
+    question: 'עיר הקרויה על שם המשורר הלאומי',
+    answer: 'קרייתביאליק',
+    displayAnswer: 'קריית ביאליק',
+    wordLengths: [5, 6]
+},
+{
+    question: 'מושב בהרי ירושלים על שם אחד ממנהיגי המרד ברומאים',
+    answer: 'ברגיורא',
+    displayAnswer: 'בר גיורא',
+    wordLengths: [2, 5]
+},
+{
+    question: 'מקום הקרוי על שמו של עקיבא יוסף שלזינגר',
+    answer: 'בניעיש',
+    displayAnswer: 'בני עיש',
+    wordLengths: [3, 3]
+},
   { 
     question: 'יישוב בהר חברון הקרוי על שמו של מנכ"ל משרד השיכון',
     answer: 'טנא',

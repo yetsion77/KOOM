@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Timer, Trophy, Lightbulb } from "lucide-react";
@@ -8,6 +8,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { questions } from '@/data/questions';
 import type { Feedback, FeedbackMessages, Question } from '@/types/game';
 import VirtualKeyboard from './VirtualKeyboard';
+import NameDialog from './NameDialog';
+import LeaderBoard from './LeaderBoard';
+import { addScore } from '@/lib/leaderboard';
 
 const LocationGame = () => {
   // Game state
@@ -23,10 +26,12 @@ const LocationGame = () => {
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [shuffledQuestions, setShuffledQuestions] = useState<Question[]>([]);
   const [mistakes, setMistakes] = useState(0);
+  const [showNameDialog, setShowNameDialog] = useState(false);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
   
   const inputRefs = useRef<HTMLInputElement[]>([]);
 
-  const feedbackMessages: FeedbackMessages = {
+  const feedbackMessages = useMemo<FeedbackMessages>(() => ({
     correct: {
       messages: ['כל הכבוד!', 'מצוין!', 'נכון מאוד!', 'יפה מאוד!'],
       className: 'text-green-600'
@@ -35,11 +40,11 @@ const LocationGame = () => {
       messages: ['לא נכון, נסה שוב', 'טעות, נסה שוב', 'לא בדיוק, נסה שוב'],
       className: 'text-red-600'
     }
-  };
-  const shuffleQuestions = () => {
+  }), []);
+  const shuffleQuestions = useCallback(() => {
     const shuffled = [...questions].sort(() => Math.random() - 0.5);
     setShuffledQuestions(shuffled);
-  };
+  }, []);
 
   const showFeedback = useCallback((type: 'correct' | 'wrong') => {
     const feedbackType = feedbackMessages[type];
@@ -60,6 +65,7 @@ const LocationGame = () => {
       setTimeout(() => {
         setGameOver(true);
         setGameStarted(false);
+        setShowNameDialog(true);
       }, 1500);
     } else {
       setTimeout(() => {
@@ -74,10 +80,26 @@ const LocationGame = () => {
         } else {
           setGameOver(true);
           setGameStarted(false);
+          setShowNameDialog(true);
         }
       }, 1500);
     }
   }, [currentQuestion, mistakes, shuffledQuestions]);
+
+  const handleSaveScore = async (playerName: string) => {
+    try {
+      await addScore({
+        playerName,
+        score,
+        mistakes,
+        date: new Date()
+      });
+      setShowNameDialog(false);
+      setShowLeaderboard(true);
+    } catch (error) {
+      console.error('Error saving score:', error);
+    }
+  };
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -142,6 +164,7 @@ const LocationGame = () => {
           } else {
             setGameOver(true);
             setGameStarted(false);
+            setShowNameDialog(true);
           }
         }, 1500);
       } else {
@@ -153,6 +176,7 @@ const LocationGame = () => {
           setTimeout(() => {
             setGameOver(true);
             setGameStarted(false);
+            setShowNameDialog(true);
           }, 1500);
         } else {
           setTimeout(() => {
@@ -195,7 +219,7 @@ const LocationGame = () => {
     
     inputRefs.current[targetIndex]?.focus();
   }, [letters]);
-
+  
   const startGame = useCallback(() => {
     shuffleQuestions();
     setGameStarted(true);
@@ -209,7 +233,10 @@ const LocationGame = () => {
     setIsCorrect(false);
     setIsWrong(false);
     setFeedback(null);
-  }, []);
+    setShowNameDialog(false);
+    setShowLeaderboard(false);
+  }, [shuffleQuestions]);
+
   const renderInputBoxes = useCallback(() => {
     const currentQ = shuffledQuestions[currentQuestion];
     let letterIndex = 0;
@@ -260,7 +287,7 @@ const LocationGame = () => {
       <Card className="w-full max-w-3xl mx-auto bg-white/90 backdrop-blur shadow-xl mb-32 md:mb-0">
         <div className="p-4 md:p-8">
           <AnimatePresence mode="wait">
-            {!gameStarted && !gameOver ? (
+            {!gameStarted && !gameOver && !showLeaderboard ? (
               // מסך פתיחה
               <motion.div
                 key="start"
@@ -278,27 +305,30 @@ const LocationGame = () => {
                   התחל משחק
                 </Button>
               </motion.div>
-            ) : gameOver ? (
-              // מסך סיום
+            ) : showNameDialog ? (
+              // דיאלוג הזנת שם
+              <NameDialog
+                score={score}
+                onSubmit={handleSaveScore}
+              />
+            ) : showLeaderboard ? (
+              // טבלת שיאים
               <motion.div
-                key="end"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                className="text-center space-y-6"
+                className="space-y-6"
               >
-                <Trophy className="w-16 h-16 mx-auto text-yellow-500 mb-4" />
-                <h2 className="text-2xl md:text-3xl font-bold text-blue-600">המשחק נגמר!</h2>
-                <p className="text-xl md:text-2xl">הניקוד שלך: {score}</p>
-                <p className="text-lg text-red-600">טעויות: {mistakes}/3</p>
-                <Button
-                  onClick={startGame}
-                  className="bg-blue-600 hover:bg-blue-700 text-base md:text-lg px-6 py-3 rounded-xl"
-                >
-                  שחק שוב
-                </Button>
+                <LeaderBoard />
+                <div className="text-center">
+                  <Button
+                    onClick={startGame}
+                    className="bg-blue-600 hover:bg-blue-700 text-lg px-6 py-3 rounded-xl"
+                  >
+                    שחק שוב
+                  </Button>
+                </div>
               </motion.div>
-            ) : (
+            ) : gameStarted && !gameOver ? (
               // מסך המשחק
               <motion.div
                 key="game"
@@ -367,12 +397,12 @@ const LocationGame = () => {
                   </Button>
                 </div>
               </motion.div>
-            )}
+            ) : null}
           </AnimatePresence>
         </div>
       </Card>
 
-      {gameStarted && !gameOver && (
+      {gameStarted && !gameOver && !showNameDialog && !showLeaderboard && (
         <VirtualKeyboard 
           onKeyPress={handleVirtualKeyPress}
           onBackspace={handleVirtualBackspace}
