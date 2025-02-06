@@ -2,13 +2,22 @@ import React, { useEffect, useState } from 'react';
 import { getTopScores, LeaderboardEntry } from '@/lib/leaderboard';
 import { motion } from 'framer-motion';
 
+interface ScoreWithId extends LeaderboardEntry {
+  id: string;
+}
+
 const LeaderBoard = () => {
-  const [scores, setScores] = useState<(LeaderboardEntry & { id: string })[]>([]);
+  const [scores, setScores] = useState<ScoreWithId[]>([]);
 
   useEffect(() => {
     const fetchScores = async () => {
       const topScores = await getTopScores();
-      setScores(topScores);
+      // נוסיף id ריק אם אין
+      const scoresWithId = topScores.map(score => ({
+        ...score,
+        id: (score as any).id || String(Math.random())
+      }));
+      setScores(scoresWithId);
     };
     fetchScores();
   }, []);

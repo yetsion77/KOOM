@@ -254,12 +254,103 @@ export const questions: Question[] = [
     displayAnswer: 'קריית ביאליק',
     wordLengths: [5, 6]
 },
+{ 
+  question: 'קיבוץ בשרון על שם הרב מוהליבר',
+  answer: 'גןשמואל',
+  displayAnswer: 'גן שמואל',
+  wordLengths: [2, 5]
+},
+{ 
+  question: 'יישוב סמוך לירושלים על שמו של ז\'בוטינסקי',
+  answer: 'גבעתזאב',
+  displayAnswer: 'גבעת זאב',
+  wordLengths: [4, 3]
+},
+{ 
+  question: 'מושב על שם השד"ר הרב יעקב ספיר',
+  answer: 'אבןספיר',
+  displayAnswer: 'אבן ספיר',
+  wordLengths: [3, 4]
+},
+{ 
+  question: 'כפר על שם המשורר הלאומי',
+  answer: 'כפרביאליק',
+  displayAnswer: 'כפר ביאליק',
+  wordLengths: [3, 6]
+},
+{ 
+  question: 'מושב על שם המשורר הלאומי',
+  answer: 'גבעתחן',
+  displayAnswer: 'גבעת חן',
+  wordLengths: [4, 2]
+},
+{ 
+  question: 'יישוב על שם אשת ראש ממשלה',
+  answer: 'עליזהב',
+  displayAnswer: 'עלי זהב',
+  wordLengths: [3, 3]
+},
+{ 
+  question: 'מושב הקרוי על שם שני אחים שנפלו במלחמת העצמאות',
+  answer: 'כפראחים',
+  displayAnswer: 'כפר אחים',
+  wordLengths: [3, 4]
+},
+{ 
+  question: 'מושב בשרון הקרוי על שם הנשיא המקראי של שבט אפרים',
+  answer: 'אלישמע',
+  displayAnswer: 'אלישמע',
+  wordLengths: [6]
+},
+{ 
+  question: 'מושב בחבל לכיש על שמו של מלך יהודה',
+  answer: 'אמציה',
+  displayAnswer: 'אמציה',
+  wordLengths: [5]
+},
+{ 
+  question: 'מושב הקרוי על שמו של נשיא הסנהדרין ביבנה',
+  answer: 'ביתגמליאל',
+  displayAnswer: 'בית גמליאל',
+  wordLengths: [3, 6]
+},
+{ 
+  question: 'מושב הקרוי על שמו של ר\' יצחק אלפסי',
+  answer: 'כפרהריף',
+  displayAnswer: 'כפר הריף',
+  wordLengths: [3, 4]
+},
+{ 
+  question: 'מושב בשרון הקרוי על שמו של פילון האלכסנדרוני',
+  answer: 'כפרידידיה',
+  displayAnswer: 'כפר ידידיה',
+  wordLengths: [3, 6]
+},
+{ 
+  question: 'מושב בשרון הקרוי על שמו של ארלוזורוב',
+  answer: 'כפרחיים',
+  displayAnswer: 'כפר חיים',
+  wordLengths: [3, 4]
+},
+{ 
+  question: 'מושב הקרוי על שמו של אחד מחלוצי השמירה העברית',
+  answer: 'ביתזייד',
+  displayAnswer: 'בית זייד',
+  wordLengths: [3, 4]
+},
+{ 
+  question: 'יישוב הקרוי על שם שלושה בחורי ישיבה שנפלו בחברון',
+  answer: 'ביתחגי',
+  displayAnswer: 'בית חגי',
+  wordLengths: [3, 3]
+},
 {
     question: 'מושב בהרי ירושלים על שם אחד ממנהיגי המרד ברומאים',
     answer: 'ברגיורא',
     displayAnswer: 'בר גיורא',
     wordLengths: [2, 5]
 },
+
 {
     question: 'מקום הקרוי על שמו של עקיבא יוסף שלזינגר',
     answer: 'בניעיש',
