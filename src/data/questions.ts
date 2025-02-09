@@ -351,8 +351,64 @@ export const questions: Question[] = [
     wordLengths: [2, 5]
 },
 
+{ 
+  question: 'מושב הקרוי על שם הסופר ליליינבלום',
+  answer: 'כפרמלל',
+  displayAnswer: 'כפר מלל',
+  wordLengths: [3, 3]
+ },
+ {
+  question: 'מושב בהרי ירושלים הקרוי על שם אביו של נחשון המקראי',
+  answer: 'עמינדב',
+  displayAnswer: 'עמינדב', 
+  wordLengths: [6]
+ },
+ {
+  question: 'יישוב בשרון הקרוי על שם אליעזר בן יהודה',
+  answer: 'אבןיהודה',
+  displayAnswer: 'אבן יהודה',
+  wordLengths: [3, 5]
+ },
+ {
+  question: 'מושב באצבע הגליל הקרוי על שם ד"ר הלל יפה',
+  answer: 'ביתהלל',
+  displayAnswer: 'בית הלל',
+  wordLengths: [3, 3]
+ },
+ {
+  question: 'מושב בשרון הקרוי על שם המלך החשמונאי אלכסנדר ינאי',
+  answer: 'ביתינאי',
+  displayAnswer: 'בית ינאי',
+  wordLengths: [3, 4]
+ },
+ {
+  question: 'מושב בהרי ירושלים הקרוי על שם הרב בר אילן',
+  answer: 'ביתמאיר',
+  displayAnswer: 'בית מאיר',
+  wordLengths: [3, 4]
+ },
+ {
+  question: 'יישוב בגוש עציון הקרוי על שמו של השר זאבי',
+  answer: 'מעלהרחבעם',
+  displayAnswer: 'מעלה רחבעם',
+  wordLengths: [4, 5]
+ },
+ {
+  question: 'יישוב הקרוי על שמו של האסטרונאוט הישראלי הראשון',
+  answer: 'מצפהאילן',
+  displayAnswer: 'מצפה אילן',
+  wordLengths: [4, 4]
+ },
+ {
+  question: 'מושב על שם שופטת מקראית',
+  answer: 'דבורה',
+  displayAnswer: 'דבורה',
+  wordLengths: [5]
+ },
+
+
 {
-    question: 'מקום הקרוי על שמו של עקיבא יוסף שלזינגר',
+    question: 'יישוב הקרוי על שמו של עקיבא יוסף שלזינגר',
     answer: 'בניעיש',
     displayAnswer: 'בני עיש',
     wordLengths: [3, 3]

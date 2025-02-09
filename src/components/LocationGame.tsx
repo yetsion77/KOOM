@@ -290,21 +290,30 @@ const LocationGame = () => {
             {!gameStarted && !gameOver && !showLeaderboard ? (
               // מסך פתיחה
               <motion.div
-                key="start"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className="text-center space-y-6"
-              >
-                <h1 className="text-3xl md:text-4xl font-bold text-blue-600 mb-8">משחק המקומות בישראל</h1>
-                <Button
-                  onClick={startGame}
-                  className="bg-blue-600 hover:bg-blue-700 text-lg md:text-xl px-6 md:px-8 py-4 md:py-6 
-                    rounded-xl transition-all duration-300 transform hover:scale-105"
-                >
-                  התחל משחק
-                </Button>
-              </motion.div>
+    key="start"
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: -20 }}
+    className="text-center space-y-6"
+  >
+    <h1 className="text-3xl md:text-4xl font-bold text-blue-600 mb-4">
+      קום והתהלך בארץ
+    </h1>
+    <h2 className="text-xl md:text-2xl text-blue-500 mb-8">
+      משחק לזיהוי יישובים בארץ
+    </h2>
+    <p className="text-lg text-gray-700 mb-8 max-w-lg mx-auto">
+      מצאו את מקומות היישוב לפי ההגדרות. לרשותכם 15 שניות לכל זיהוי. 
+      לאחר שלוש טעויות המשחק יסתיים. בהצלחה!
+    </p>
+    <Button
+      onClick={startGame}
+      className="bg-blue-600 hover:bg-blue-700 text-lg md:text-xl px-6 md:px-8 py-4 md:py-6 
+        rounded-xl transition-all duration-300 transform hover:scale-105"
+    >
+      התחל משחק
+    </Button>
+  </motion.div>
             ) : showNameDialog ? (
               // דיאלוג הזנת שם
               <NameDialog
