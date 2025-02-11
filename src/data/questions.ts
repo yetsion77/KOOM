@@ -159,7 +159,7 @@ export const questions: Question[] = [
     wordLengths: [3, 4]
   },
   { 
-    question: 'המושב הראשון בארץ',
+    question: 'מושב העובדים הראשון בארץ',
     answer: 'נהלל',
     displayAnswer: 'נהלל',
     wordLengths: [4]
@@ -176,14 +176,158 @@ export const questions: Question[] = [
     displayAnswer: 'עפרה',
     wordLengths: [4]
   },
+  {
+    question: 'מושבה הקרויה על שם אביו של הברון רוטשילד',
+    answer: 'זכרוןיעקב',
+    displayAnswer: 'זכרון יעקב',
+    wordLengths: [5, 4]
+  },
+  {
+    question: 'מושבה על שמו של הנדיב הידוע',
+    answer: 'בנימינה',
+    displayAnswer: 'בנימינה',
+    wordLengths: [7]
+  },
+  {
+    question: 'מושבה הקרויה על שם אמו של הברון רוטשילד',
+    answer: 'מזכרתבתיה',
+    displayAnswer: 'מזכרת בתיה',
+    wordLengths: [5, 4]
+  },
+  {
+    question: 'קיבוץ הנקרא על שם אחת מצנחניות היישוב',
+    answer: 'להבותחביבה',
+    displayAnswer: 'להבות חביבה',
+    wordLengths: [5, 5]
+  },
+  {
+    question: 'קיבוץ בעמק הירדן על שם בנו של הנדיב הידוע',
+    answer: 'אשדותיעקב',
+    displayAnswer: 'אשדות יעקב',
+    wordLengths: [5, 4]
+  },
+  {
+    question: 'עיר בגוש דן על שם הרב אלקלעי',
+    answer: 'אוריהודה',
+    displayAnswer: 'אור יהודה',
+    wordLengths: [3, 5]
+  },
+  {
+    question: 'יישוב בשומרון על שם בנו של אהרן הכהן',
+    answer: 'איתמר',
+    displayAnswer: 'איתמר',
+    wordLengths: [5]
+  },
+  {
+    question: 'מושב בגולן על שמו של אלי כהן',
+    answer: 'אליעד',
+    displayAnswer: 'אליעד',
+    wordLengths: [5]
+  },
+  {
+    question: 'קיבוץ בדרום ירושלים על שמה של אחת מארבע האימהות',
+    answer: 'רמתרחל',
+    displayAnswer: 'רמת רחל',
+    wordLengths: [3, 3]
+  },
+  {
+    question: 'קיבוץ במערב הנגב הקרוי על שם כינויו של ברל כצנלסון',
+    answer: 'בארי',
+    displayAnswer: 'בארי',
+    wordLengths: [4]
+  },
+  {
+    question: 'מושב בעמק חפר הקרוי על שם ריה"ל',
+    answer: 'ביתהלוי',
+    displayAnswer: 'בית הלוי',
+    wordLengths: [3, 4]
+  },
+  {
+    question: 'מושב הקרוי על שמו של הרב הראשי הספרדי הראשון',
+    answer: 'ביתעוזיאל',
+    displayAnswer: 'בית עוזיאל',
+    wordLengths: [3, 6]
+  },
+  {
+    question: 'מושב בשפלה הקרוי על שם אדמו"רי חסידות גור',
+    answer: 'בניראם',
+    displayAnswer: 'בני ראם',
+    wordLengths: [3, 3]
+  },
+  {
+    question: 'מושב מצפון לכינרת הקרוי בשם דג',
+    answer: 'אמנון',
+    displayAnswer: 'אמנון',
+    wordLengths: [5]
+  },
+  {
+    question: 'מושב בשרון הקרוי על שם הנשיא הראשון',
+    answer: 'גןחיים',
+    displayAnswer: 'גן חיים',
+    wordLengths: [2, 4]
+  },
+  {
+    question: 'יישוב הקרוי על שם אביו של השופט המקראי שמואל',
+    answer: 'אלקנה',
+    displayAnswer: 'אלקנה',
+    wordLengths: [5]
+  },
+  {
+    question: 'יישוב בהר חברון על שם שר הצבא של דוד המלך',
+    answer: 'הרעמשא',
+    displayAnswer: 'הר עמשא',
+    wordLengths: [2, 4]
+  },
+  {
+    question: 'יישוב שנקרא על שם מנהיג הלח"י אברהם שטרן',
+    answer: 'כוכביאיר',
+    displayAnswer: 'כוכב יאיר',
+    wordLengths: [4, 4]
+  },
+  {
+    question: 'יישוב באזור בנימין הקרוי על שמו של רבי יעקב אבוחצירא',
+    answer: 'כוכביעקב',
+    displayAnswer: 'כוכב יעקב',
+    wordLengths: [4, 4]
+  },
+  {
+    question: 'מושב בהרי ירושלים הקרוי על שם מפקד האצ"ל',
+    answer: 'רמתרזיאל',
+    displayAnswer: 'רמת רזיאל',
+    wordLengths: [3, 5]
+  },
+  {
+    question: 'מושב הקרוי על שם רבי משה בן מיימון',
+    answer: 'ידרמבם',
+    displayAnswer: 'יד רמבם',
+    wordLengths: [2, 4]
+  },
+  {
+    question: 'קיבוץ באצבע הגליל הקרוי על שמה של מייסדת ארגון "הדסה"',
+    answer: 'כפרסאלד',
+    displayAnswer: 'כפר סאלד',
+    wordLengths: [3, 4]
+  },
+  {
+    question: 'מושב באזור הכרמל הקרוי על שמו של רבי יהודה ליווא בן בצלאל מפראג',
+    answer: 'כרםמהרל',
+    displayAnswer: 'כרם מהרל',
+    wordLengths: [3, 4]
+  },
+  {
+    question: 'מושב הקרוי על שמו של בר הפלוגתא של הלל הזקן',
+    answer: 'כפרשמאי',
+    displayAnswer: 'כפר שמאי',
+    wordLengths: [3, 4]
+  },
   { 
-    question: 'מושב הקרוי על שם נשיא ארה"ב',
+    question: 'מושב במישור החוף הקרוי על שם נשיא ארה"ב',
     answer: 'כפרטרומן',
     displayAnswer: 'כפר טרומן',
     wordLengths: [3, 5]
   },
   { 
-    question: 'קיבוץ הקרוי על שם ראש ממשלת צרפת',
+    question: 'קיבוץ באצבע הגליל הקרוי על שם ראש ממשלת צרפת',
     answer: 'כפרבלום',
     displayAnswer: 'כפר בלום',
     wordLengths: [3, 4]
@@ -207,7 +351,7 @@ export const questions: Question[] = [
     wordLengths: [3, 5]
   },
   { 
-    question: 'קיבוץ הקרוי על שמו של אחד ממנהיגי "השומר"',
+    question: 'קיבוץ באצבע הגליל הקרוי על שמו של אחד ממנהיגי "השומר"',
     answer: 'כפרגלעדי',
     displayAnswer: 'כפר גלעדי',
     wordLengths: [3, 5]
@@ -285,7 +429,7 @@ export const questions: Question[] = [
   wordLengths: [4, 2]
 },
 { 
-  question: 'יישוב על שם אשת ראש ממשלה',
+  question: 'יישוב בשומרון על שם אשת ראש ממשלה',
   answer: 'עליזהב',
   displayAnswer: 'עלי זהב',
   wordLengths: [3, 3]
@@ -315,13 +459,13 @@ export const questions: Question[] = [
   wordLengths: [3, 6]
 },
 { 
-  question: 'מושב הקרוי על שמו של ר\' יצחק אלפסי',
+  question: 'מושב הקרוי על שמו של רבי יצחק אלפסי',
   answer: 'כפרהריף',
   displayAnswer: 'כפר הריף',
   wordLengths: [3, 4]
 },
 { 
-  question: 'מושב בשרון הקרוי על שמו של פילון האלכסנדרוני',
+  question: 'מושב בשרון הקרוי על שמו העברי של פילון האלכסנדרוני',
   answer: 'כפרידידיה',
   displayAnswer: 'כפר ידידיה',
   wordLengths: [3, 6]
@@ -332,12 +476,7 @@ export const questions: Question[] = [
   displayAnswer: 'כפר חיים',
   wordLengths: [3, 4]
 },
-{ 
-  question: 'מושב הקרוי על שמו של אחד מחלוצי השמירה העברית',
-  answer: 'ביתזייד',
-  displayAnswer: 'בית זייד',
-  wordLengths: [3, 4]
-},
+
 { 
   question: 'יישוב הקרוי על שם שלושה בחורי ישיבה שנפלו בחברון',
   answer: 'ביתחגי',

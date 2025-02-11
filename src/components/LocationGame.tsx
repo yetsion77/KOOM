@@ -17,7 +17,7 @@ const LocationGame = () => {
   const [gameStarted, setGameStarted] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
-  const [questionTimer, setQuestionTimer] = useState(15);
+  const [questionTimer, setQuestionTimer] = useState(20);
   const [letters, setLetters] = useState<string[]>([]);
   const [showHint, setShowHint] = useState(false);
   const [gameOver, setGameOver] = useState(false);
@@ -76,7 +76,7 @@ const LocationGame = () => {
           setIsCorrect(false);
           setIsWrong(false);
           setFeedback(null);
-          setQuestionTimer(15);
+          setQuestionTimer(20);
         } else {
           setGameOver(true);
           setGameStarted(false);
@@ -108,7 +108,7 @@ const LocationGame = () => {
         setQuestionTimer((prev) => {
           if (prev <= 1) {
             handleTimeUp();
-            return 15;
+            return 20;
           }
           return prev - 1;
         });
@@ -160,7 +160,7 @@ const LocationGame = () => {
             setLetters([]);
             setShowHint(false);
             setIsCorrect(false);
-            setQuestionTimer(15);
+            setQuestionTimer(20);
           } else {
             setGameOver(true);
             setGameStarted(false);
@@ -224,7 +224,7 @@ const LocationGame = () => {
     shuffleQuestions();
     setGameStarted(true);
     setGameOver(false);
-    setQuestionTimer(15);
+    setQuestionTimer(20);
     setScore(0);
     setMistakes(0);
     setCurrentQuestion(0);
@@ -303,7 +303,7 @@ const LocationGame = () => {
       משחק לזיהוי יישובים בארץ
     </h2>
     <p className="text-lg text-gray-700 mb-8 max-w-lg mx-auto">
-      מצאו את מקומות היישוב לפי ההגדרות. לרשותכם 15 שניות לכל זיהוי. 
+      מצאו את מקומות היישוב לפי ההגדרות. לרשותכם 20 שניות לכל זיהוי. 
       לאחר שלוש טעויות המשחק יסתיים. בהצלחה!
     </p>
     <Button
@@ -411,13 +411,7 @@ const LocationGame = () => {
         </div>
       </Card>
 
-      {gameStarted && !gameOver && !showNameDialog && !showLeaderboard && (
-        <VirtualKeyboard 
-          onKeyPress={handleVirtualKeyPress}
-          onBackspace={handleVirtualBackspace}
-          className="pt-4 pb-safe"
-        />
-      )}
+      
     </div>
   );
 };
