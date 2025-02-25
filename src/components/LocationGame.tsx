@@ -302,9 +302,9 @@ useEffect(() => {
       <Card className="w-full max-w-3xl mx-auto bg-white/90 backdrop-blur shadow-xl mb-32 md:mb-0">
         <div className="p-4 md:p-8">
           <AnimatePresence mode="wait">
-            {!gameStarted && !gameOver && !showLeaderboard ? (
-              // מסך פתיחה
-              <motion.div
+          {!gameStarted && !gameOver && !showLeaderboard ? (
+  // Start Screen
+  <motion.div
     key="start"
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
@@ -318,16 +318,22 @@ useEffect(() => {
       משחק לזיהוי יישובים בארץ
     </h2>
     <p className="text-lg text-gray-700 mb-8 max-w-lg mx-auto">
-      מצאו את מקומות היישוב לפי ההגדרות. לרשותכם 30 שניות לכל זיהוי. 
+      מצאו את מקומות היישוב לפי ההגדרות. לרשותכם 20 שניות לכל זיהוי. 
       לאחר שלוש טעויות המשחק יסתיים. בהצלחה!
     </p>
     <Button
       onClick={startGame}
       className="bg-blue-600 hover:bg-blue-700 text-lg md:text-xl px-6 md:px-8 py-4 md:py-6 
-        rounded-xl transition-all duration-300 transform hover:scale-105"
+        rounded-xl transition-all duration-300 transform hover:scale-105 mb-8"
     >
       התחל משחק
     </Button>
+    
+    {/* טבלת השיאים */}
+    <div className="mt-12">
+      <h3 className="text-xl font-bold text-blue-600 mb-4">טבלת השיאים</h3>
+      <LeaderBoard />
+    </div>
   </motion.div>
             ) : showNameDialog ? (
               // דיאלוג הזנת שם
