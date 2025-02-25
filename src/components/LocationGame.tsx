@@ -3,11 +3,10 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Timer, Trophy, Lightbulb } from "lucide-react";
+import { Timer, Trophy, Lightbulb, SkipForward } from "lucide-react";
 import { motion, AnimatePresence } from 'framer-motion';
 import { questions } from '@/data/questions';
 import type { Feedback, FeedbackMessages, Question } from '@/types/game';
-import VirtualKeyboard from './VirtualKeyboard';
 import NameDialog from './NameDialog';
 import LeaderBoard from './LeaderBoard';
 import { addScore } from '@/lib/leaderboard';
@@ -17,7 +16,7 @@ const LocationGame = () => {
   const [gameStarted, setGameStarted] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
-  const [questionTimer, setQuestionTimer] = useState(30);
+  const [questionTimer, setQuestionTimer] = useState(30); // 30 שניות לכל שאלה
   const [letters, setLetters] = useState<string[]>([]);
   const [showHint, setShowHint] = useState(false);
   const [gameOver, setGameOver] = useState(false);
@@ -76,7 +75,42 @@ const LocationGame = () => {
           setIsCorrect(false);
           setIsWrong(false);
           setFeedback(null);
-          setQuestionTimer(30);
+          setQuestionTimer(30); // איפוס ל-30 שניות
+        } else {
+          setGameOver(true);
+          setGameStarted(false);
+          setShowNameDialog(true);
+        }
+      }, 1500);
+    }
+  }, [currentQuestion, mistakes, shuffledQuestions]);
+
+  const handleSkip = useCallback(() => {
+    setMistakes(prev => prev + 1);
+    
+    // מציג את התשובה הנכונה
+    const currentQ = shuffledQuestions[currentQuestion];
+    setFeedback({
+      message: `התשובה הנכונה: ${currentQ.displayAnswer}`,
+      className: 'text-blue-600'
+    });
+    
+    if (mistakes + 1 >= 3) {
+      setTimeout(() => {
+        setGameOver(true);
+        setGameStarted(false);
+        setShowNameDialog(true);
+      }, 1500);
+    } else {
+      setTimeout(() => {
+        if (currentQuestion < shuffledQuestions.length - 1) {
+          setCurrentQuestion(prev => prev + 1);
+          setLetters([]);
+          setShowHint(false);
+          setIsCorrect(false);
+          setIsWrong(false);
+          setFeedback(null);
+          setQuestionTimer(30); // איפוס ל-30 שניות
         } else {
           setGameOver(true);
           setGameStarted(false);
@@ -92,7 +126,7 @@ const LocationGame = () => {
         playerName,
         score,
         mistakes,
-        date: new Date()
+        date: new Date().toISOString()
       });
       setShowNameDialog(false);
       setShowLeaderboard(true);
@@ -100,7 +134,6 @@ const LocationGame = () => {
       console.error('Error saving score:', error);
     }
   };
-
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (gameStarted && questionTimer > 0) {
@@ -108,7 +141,7 @@ const LocationGame = () => {
         setQuestionTimer((prev) => {
           if (prev <= 1) {
             handleTimeUp();
-            return 30;
+            return 30; // איפוס ל-30 שניות
           }
           return prev - 1;
         });
@@ -130,20 +163,21 @@ const LocationGame = () => {
       }, 100);
     }
   }, [currentQuestion, gameStarted, shuffledQuestions]);
-  // נוסיף פונקציה שתמנע את פעולת הרווח בזמן המשחק
-useEffect(() => {
-  const handleKeyDown = (e: KeyboardEvent) => {
-    if (gameStarted && e.code === 'Space') {
-      e.preventDefault();
-    }
-  };
-  
-  window.addEventListener('keydown', handleKeyDown);
-  
-  return () => {
-    window.removeEventListener('keydown', handleKeyDown);
-  };
-}, [gameStarted]);
+
+  // מניעת ברירת המחדל של מקש הרווח
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (gameStarted && e.code === 'Space') {
+        e.preventDefault();
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [gameStarted]);
 
   const handleInput = useCallback((index: number, value: string) => {
     if (value.length > 1) return;
@@ -175,7 +209,7 @@ useEffect(() => {
             setLetters([]);
             setShowHint(false);
             setIsCorrect(false);
-            setQuestionTimer(30);
+            setQuestionTimer(30); // איפוס ל-30 שניות
           } else {
             setGameOver(true);
             setGameStarted(false);
@@ -185,25 +219,42 @@ useEffect(() => {
       } else {
         setMistakes(prev => prev + 1);
         setIsWrong(true);
-        showFeedback('wrong');
+        
+        // הצגת התשובה הנכונה אחרי תשובה שגויה
+        setTimeout(() => {
+          setFeedback({
+            message: `התשובה הנכונה: ${shuffledQuestions[currentQuestion].displayAnswer}`,
+            className: 'text-blue-600'
+          });
+        }, 1000);
 
         if (mistakes + 1 >= 3) {
           setTimeout(() => {
             setGameOver(true);
             setGameStarted(false);
             setShowNameDialog(true);
-          }, 1500);
+          }, 2500);
         } else {
           setTimeout(() => {
             setIsWrong(false);
             setLetters(new Array(shuffledQuestions[currentQuestion].answer.length).fill(''));
-            inputRefs.current[0]?.focus();
-          }, 1500);
+            setFeedback(null);
+            
+            // מעבר לשאלה הבאה אחרי הצגת התשובה הנכונה
+            if (currentQuestion < shuffledQuestions.length - 1) {
+              setCurrentQuestion(prev => prev + 1);
+              setShowHint(false);
+              setQuestionTimer(30);
+            } else {
+              setGameOver(true);
+              setGameStarted(false);
+              setShowNameDialog(true);
+            }
+          }, 2500);
         }
       }
     }
   }, [letters, currentQuestion, shuffledQuestions, mistakes, showHint, showFeedback]);
-
   const handleKeyDown = useCallback((index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Backspace') {
       const newLetters = [...letters];
@@ -217,29 +268,11 @@ useEffect(() => {
     }
   }, [letters]);
 
-  const handleVirtualKeyPress = useCallback((key: string) => {
-    const targetIndex = letters.findIndex(letter => !letter);
-    if (targetIndex === -1) return;
-    
-    handleInput(targetIndex, key);
-  }, [letters, handleInput]);
-
-  const handleVirtualBackspace = useCallback(() => {
-    const targetIndex = letters.map(letter => !!letter).lastIndexOf(true);
-    if (targetIndex === -1) return;
-    
-    const newLetters = [...letters];
-    newLetters[targetIndex] = '';
-    setLetters(newLetters);
-    
-    inputRefs.current[targetIndex]?.focus();
-  }, [letters]);
-  
   const startGame = useCallback(() => {
     shuffleQuestions();
     setGameStarted(true);
     setGameOver(false);
-    setQuestionTimer(30);
+    setQuestionTimer(30); // איפוס ל-30 שניות
     setScore(0);
     setMistakes(0);
     setCurrentQuestion(0);
@@ -302,39 +335,39 @@ useEffect(() => {
       <Card className="w-full max-w-3xl mx-auto bg-white/90 backdrop-blur shadow-xl mb-32 md:mb-0">
         <div className="p-4 md:p-8">
           <AnimatePresence mode="wait">
-          {!gameStarted && !gameOver && !showLeaderboard ? (
-  // Start Screen
-  <motion.div
-    key="start"
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    exit={{ opacity: 0, y: -20 }}
-    className="text-center space-y-6"
-  >
-    <h1 className="text-3xl md:text-4xl font-bold text-blue-600 mb-4">
-      קום והתהלך בארץ
-    </h1>
-    <h2 className="text-xl md:text-2xl text-blue-500 mb-8">
-      משחק לזיהוי יישובים בארץ
-    </h2>
-    <p className="text-lg text-gray-700 mb-8 max-w-lg mx-auto">
-      מצאו את מקומות היישוב לפי ההגדרות. לרשותכם 20 שניות לכל זיהוי. 
-      לאחר שלוש טעויות המשחק יסתיים. בהצלחה!
-    </p>
-    <Button
-      onClick={startGame}
-      className="bg-blue-600 hover:bg-blue-700 text-lg md:text-xl px-6 md:px-8 py-4 md:py-6 
-        rounded-xl transition-all duration-300 transform hover:scale-105 mb-8"
-    >
-      התחל משחק
-    </Button>
-    
-    {/* טבלת השיאים */}
-    <div className="mt-12">
-      <h3 className="text-xl font-bold text-blue-600 mb-4">טבלת השיאים</h3>
-      <LeaderBoard />
-    </div>
-  </motion.div>
+            {!gameStarted && !gameOver && !showLeaderboard ? (
+              // מסך פתיחה
+              <motion.div
+                key="start"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="text-center space-y-6"
+              >
+                <h1 className="text-3xl md:text-4xl font-bold text-blue-600 mb-4">
+                  קום והתהלך בארץ
+                </h1>
+                <h2 className="text-xl md:text-2xl text-blue-500 mb-8">
+                  משחק לזיהוי יישובים בארץ
+                </h2>
+                <p className="text-lg text-gray-700 mb-8 max-w-lg mx-auto">
+                  מצאו את מקומות היישוב לפי ההגדרות. לרשותכם 30 שניות לכל זיהוי. 
+                  לאחר שלוש טעויות המשחק יסתיים. בהצלחה!
+                </p>
+                <Button
+                  onClick={startGame}
+                  className="bg-blue-600 hover:bg-blue-700 text-lg md:text-xl px-6 md:px-8 py-4 md:py-6 
+                    rounded-xl transition-all duration-300 transform hover:scale-105 mb-8"
+                >
+                  התחל משחק
+                </Button>
+                
+                {/* טבלת השיאים */}
+                <div className="mt-12">
+                  <h3 className="text-xl font-bold text-blue-600 mb-4">טבלת השיאים</h3>
+                  <LeaderBoard />
+                </div>
+              </motion.div>
             ) : showNameDialog ? (
               // דיאלוג הזנת שם
               <NameDialog
@@ -425,14 +458,25 @@ useEffect(() => {
                       <span className="text-yellow-700">קבל רמז</span>
                     </div>
                   </Button>
+                  
+                  {/* כפתור דילוג */}
+                  <Button
+                    onClick={handleSkip}
+                    variant="outline"
+                    className="group relative px-4 md:px-6 py-2 md:py-3 rounded-lg border-2 border-red-400 
+                      hover:bg-red-50 transition-colors duration-300"
+                  >
+                    <div className="flex items-center gap-2">
+                      <SkipForward className="w-4 h-4 text-red-500 group-hover:text-red-600" />
+                      <span className="text-red-700">דלג</span>
+                    </div>
+                  </Button>
                 </div>
               </motion.div>
             ) : null}
           </AnimatePresence>
         </div>
       </Card>
-
-      
     </div>
   );
 };
