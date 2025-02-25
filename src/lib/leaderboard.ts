@@ -1,12 +1,14 @@
 import { db } from './firebase';
-import { ref, push, query, orderByChild, limitToLast, get } from 'firebase/database';
+import { ref, push, query, orderByChild, limitToLast, get } from 'firebase/database';  // שימוש בפונקציות של Realtime Database
+
 export interface LeaderboardEntry {
-    id?: string;
-    playerName: string;
-    score: number;
-    date: string | Date;  // נאפשר גם Date
-    mistakes: number;
-  }
+  id?: string;
+  playerName: string;
+  score: number;
+  date: string | Date;
+  mistakes: number;
+}
+
 export const addScore = async (entry: Omit<LeaderboardEntry, 'id'>) => {
   try {
     const result = await push(ref(db, 'scores'), {

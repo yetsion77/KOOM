@@ -17,7 +17,7 @@ const LocationGame = () => {
   const [gameStarted, setGameStarted] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
-  const [questionTimer, setQuestionTimer] = useState(20);
+  const [questionTimer, setQuestionTimer] = useState(30);
   const [letters, setLetters] = useState<string[]>([]);
   const [showHint, setShowHint] = useState(false);
   const [gameOver, setGameOver] = useState(false);
@@ -76,7 +76,7 @@ const LocationGame = () => {
           setIsCorrect(false);
           setIsWrong(false);
           setFeedback(null);
-          setQuestionTimer(20);
+          setQuestionTimer(30);
         } else {
           setGameOver(true);
           setGameStarted(false);
@@ -108,7 +108,7 @@ const LocationGame = () => {
         setQuestionTimer((prev) => {
           if (prev <= 1) {
             handleTimeUp();
-            return 20;
+            return 30;
           }
           return prev - 1;
         });
@@ -130,6 +130,21 @@ const LocationGame = () => {
       }, 100);
     }
   }, [currentQuestion, gameStarted, shuffledQuestions]);
+  // נוסיף פונקציה שתמנע את פעולת הרווח בזמן המשחק
+useEffect(() => {
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (gameStarted && e.code === 'Space') {
+      e.preventDefault();
+    }
+  };
+  
+  window.addEventListener('keydown', handleKeyDown);
+  
+  return () => {
+    window.removeEventListener('keydown', handleKeyDown);
+  };
+}, [gameStarted]);
+
   const handleInput = useCallback((index: number, value: string) => {
     if (value.length > 1) return;
     
@@ -160,7 +175,7 @@ const LocationGame = () => {
             setLetters([]);
             setShowHint(false);
             setIsCorrect(false);
-            setQuestionTimer(20);
+            setQuestionTimer(30);
           } else {
             setGameOver(true);
             setGameStarted(false);
@@ -224,7 +239,7 @@ const LocationGame = () => {
     shuffleQuestions();
     setGameStarted(true);
     setGameOver(false);
-    setQuestionTimer(20);
+    setQuestionTimer(30);
     setScore(0);
     setMistakes(0);
     setCurrentQuestion(0);
@@ -303,7 +318,7 @@ const LocationGame = () => {
       משחק לזיהוי יישובים בארץ
     </h2>
     <p className="text-lg text-gray-700 mb-8 max-w-lg mx-auto">
-      מצאו את מקומות היישוב לפי ההגדרות. לרשותכם 20 שניות לכל זיהוי. 
+      מצאו את מקומות היישוב לפי ההגדרות. לרשותכם 30 שניות לכל זיהוי. 
       לאחר שלוש טעויות המשחק יסתיים. בהצלחה!
     </p>
     <Button
